@@ -133,7 +133,7 @@ This project uses Jest for unit test. To run unit tests, follow these steps:
 
 ```bash
 
-npm test
+npm run test
 
 ```
 
