@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -12,11 +13,12 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-const login = () => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  //If Already Login, automatically navigate to Map page
   useEffect(() => {
     const checkAlreadyLogin = async () => {
       try {
@@ -67,19 +69,19 @@ const login = () => {
 
         router.push("/home");
       } else {
-        alert("Login failed. Please try again.");
+        Alert.alert("Login failed. Please try again.");
       }
     } catch (error) {
       if (error.response) {
-        alert(
+        Alert.alert(
           `Login failed: ${
             error.response.data.message || "Please check your credentials."
           }`
         );
       } else if (error.request) {
-        alert("Network error: Please check your internet connection.");
+        Alert.alert("Network error: Please check your internet connection.");
       } else {
-        alert("An error occurred. Please try again.");
+        Alert.alert("An error occurred. Please try again.");
       }
     }
   };
@@ -129,7 +131,7 @@ const login = () => {
   );
 };
 
-export default login;
+export default Login;
 
 const styles = StyleSheet.create({
   container: {

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
-// import { locations } from "../locations";
 import MapView, { Marker, Callout } from "react-native-maps";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
@@ -15,7 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 import { router } from "expo-router";
 
-const home = () => {
+const Home = () => {
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
@@ -56,11 +55,10 @@ const home = () => {
 
           setLocations(response.data);
         } else {
-          setError("No token found.");
+          console.log("No token found.");
         }
       } catch (err) {
         console.error("Error fetching locations:", err);
-        setError("Failed to fetch locations.");
       }
     };
 
@@ -83,11 +81,12 @@ const home = () => {
         </TouchableOpacity>
         <MapView
           style={styles.map}
+          testID="map"
           initialRegion={{
             latitude: 37.7895414,
             longitude: -122.4127317,
-            latitudeDelta: 0.02, // Adjust for zoom level
-            longitudeDelta: 0.02, // Adjust for zoom level
+            latitudeDelta: 0.02,
+            longitudeDelta: 0.02,
           }}
         >
           {locations.map((location, index) => (
@@ -113,7 +112,7 @@ const home = () => {
   );
 };
 
-export default home;
+export default Home;
 
 const styles = StyleSheet.create({
   container: {
