@@ -1,28 +1,181 @@
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native'
-import React from 'react'
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-const index = () => {
+const login = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const checkAlreadyLogin = async () => {
+      try {
+        const refreshToken = await SecureStore.getItemAsync("refreshToken");
+
+        if (!refreshToken) {
+          return;
+        }
+
+        const response = await axios.post(
+          `${process.env.EXPO_PUBLIC_BACKEND_URL}/refresh`,
+          {
+            refresh_token: refreshToken,
+          }
+        );
+
+        const { access_token, refresh_token } = response.data;
+        await SecureStore.setItemAsync("accessToken", access_token);
+        await SecureStore.setItemAsync("refreshToken", refresh_token);
+
+        router.push("/home");
+      } catch (error) {
+        console.error("Error refreshing token:", error);
+      }
+    };
+
+    checkAlreadyLogin();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/login`,
+        { username, password },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const { access_token, refresh_token } = response.data;
+
+        // Store access token securely
+        await SecureStore.setItemAsync("accessToken", access_token);
+        await SecureStore.setItemAsync("refreshToken", refresh_token);
+
+        router.push("/home");
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } catch (error) {
+      if (error.response) {
+        alert(
+          `Login failed: ${
+            error.response.data.message || "Please check your credentials."
+          }`
+        );
+      } else if (error.request) {
+        alert("Network error: Please check your internet connection.");
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <TextInput style={styles.input}/>
-      <TextInput style={styles.input} />
-      <Button title='Login' />
-    </View>
-  )
-}
+      <View style={styles.logoWrapper}>
+        <Image
+          source={require("../assets/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+      <TextInput
+        style={styles.input}
+        onChangeText={(text) => setUsername(text)}
+        placeholder="Username"
+      />
+      <View style={styles.passwordWrapper}>
+        <TextInput
+          style={{ flex: 1 }}
+          onChangeText={(text) => setPassword(text)}
+          placeholder="Password"
+          secureTextEntry={!showPassword}
+        />
+        {showPassword ? (
+          <FontAwesome5
+            name="eye"
+            size={20}
+            color="black"
+            onPress={() => setShowPassword(!showPassword)}
+          />
+        ) : (
+          <FontAwesome5
+            name="eye-slash"
+            size={20}
+            color="black"
+            onPress={() => setShowPassword(!showPassword)}
+          />
+        )}
+      </View>
 
-export default index
+      <TouchableOpacity style={styles.btn} onPress={() => handleLogin()}>
+        <Text style={{ color: "#fff" }}>Login</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+export default login;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: 'gray',
-        borderRadius: 5,
-        width: '100%'
-    }
-})
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoWrapper: {
+    width: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logo: {
+    height: 100,
+    width: "80%",
+    marginBottom: 100,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#d3d6db",
+    borderRadius: 10,
+    width: "90%",
+    height: 50,
+    marginBottom: 15,
+    paddingLeft: 10,
+    backgroundColor: "#fff",
+  },
+  passwordWrapper: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#d3d6db",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  btn: {
+    marginTop: 50,
+    width: "90%",
+    backgroundColor: "#3e77ba",
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
