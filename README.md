@@ -68,9 +68,11 @@ npx expo start --ios
 
 npx expo start --android
 
-**NOTE** : Before running this project, you need to run backend first according to this [Backend Repo](https://github.com/devcombine-llc/jwt-maps-go-server)
+
 
 ```
+
+**NOTE** : Before running this project, you need to run backend first according to this [Backend Repo](https://github.com/devcombine-llc/jwt-maps-go-server)
 
 ## Architecture overview
 The architecture of this app focuses on displaying markers on a map and allowing users to view the details of each marker. It follows a modular design that separates concerns such as data fetching, marker rendering, and user interaction with the map. The app uses a map rendering library like `react-native-maps`, and markers are dynamically added to the map using coordinates fetched from an API. When a user taps on a marker, detailed information about the marker is displayed in a modal or dedicated detail view.
